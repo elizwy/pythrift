@@ -55,6 +55,7 @@ class DoubleNodeList:
             node.prev.next = node.next
             node.next.prev = node.prev
             self.size -= 1
+        node.prev = node.next = None
         return node
 
     def __del_head(self):
