@@ -1,26 +1,31 @@
-from computer_principle.node.DoubleLinkedList2 import *
+from computer_principle.node.DoubleLinkedList2 import  *
 
 
 class LFUNode(Node):
     def __init__(self, key, value):
-        self.freq = 1
+        self.freq = 0
         super(LFUNode, self).__init__(key, value)
 
 
 class LFUCache(object):
+
     def __init__(self, capacity):
-        self.capacity = capacity;
+        self.capacity = capacity
         self.map = {}
+        # key: 频率, value: 频率对应的双向链表
         self.freq_map = {}
         self.size = 0
 
+    # 更新节点频率的操作
     def __update_freq(self, node):
         freq = node.freq
-        # delete
-        self.freq_map[freq].remove(node)
+
+        # 删除
+        node = self.freq_map[freq].remove(node)
         if self.freq_map[freq].size == 0:
             del self.freq_map[freq]
-        # update
+
+        # 更新
         freq += 1
         node.freq = freq
         if freq not in self.freq_map:
@@ -37,27 +42,34 @@ class LFUCache(object):
     def put(self, key, value):
         if self.capacity == 0:
             return
+
+        # 缓存命中
         if key in self.map:
-            node = self.map[key]
+            node = self.map.get(key)
             node.value = value
-            self.map[key] = node
             self.__update_freq(node)
+
+        # 缓存没有命中
         else:
-            if self.size == self.capacity:
-                freq = min(self.freq_map)
-                self.freq_map[freq].remove()
+            if self.capacity == self.size:
+                min_freq = min(self.freq_map)
+                node = self.freq_map[min_freq].pop()
+                del self.map[node.key]
+                self.size -= 1
             node = LFUNode(key, value)
+            node.freq = 1
             self.map[key] = node
             if node.freq not in self.freq_map:
                 self.freq_map[node.freq] = DoubleLinkedList2()
-            self.freq_map[node.freq].append(node)
+            node = self.freq_map[node.freq].append(node)
             self.size += 1
 
     def print(self):
+        print('***************************')
         for k, v in self.freq_map.items():
-            print('Freq=%s' % k)
+            print('Freq = %d' % k)
             self.freq_map[k].print()
-        print('******************')
+        print('***************************')
         print()
 
 
@@ -72,6 +84,8 @@ if __name__ == '__main__':
     cache.put(3, 3)
     cache.print()
     print(cache.get(2))
+    cache.print()
+    print(cache.get(3))
     cache.print()
     cache.put(4, 4)
     cache.print()
