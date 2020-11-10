@@ -5,8 +5,8 @@ from operate_system import Task
 class ProcessThread(threading.Thread):
 
     def __init__(self, task_queue, *args, **kwargs):
-        threading.Thread.__init__(*args, **kwargs)
-        self.dismiss_flag = threading.Event();
+        threading.Thread.__init__(self,*args, **kwargs)
+        self.dismiss_flag = threading.Event()
         self.task_queue = task_queue
         self.args = args
         self.kwargs = kwargs
@@ -16,7 +16,7 @@ class ProcessThread(threading.Thread):
             if self.dismiss_flag.isSet():
                 break
             task = self.task_queue.pop()
-            if not isinstance(task, Task):
+            if not isinstance(task, Task.Task):
                 continue
             result = task.callable(*task.args, **task.kwargs)
 

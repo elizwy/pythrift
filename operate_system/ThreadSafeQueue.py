@@ -8,7 +8,7 @@ class ThreadSafeQueueException(Exception):
 
 class ThreadSafeQueue(object):
 
-    def __init__(self, maxSize):
+    def __init__(self, maxSize=0):
         self.maxSize = maxSize
         self.queue = []
         self.lock = threading.Lock()
@@ -20,8 +20,11 @@ class ThreadSafeQueue(object):
         self.lock.release()
         return size
 
-    def get(self):
-        pass
+    def get(self, index):
+        self.lock.acquire()
+        item = self.queue[index]
+        self.lock.release()
+        return item
 
     def put(self, item):
         if self.size() == self.maxSize:
@@ -58,16 +61,21 @@ class ThreadSafeQueue(object):
 
 if __name__ == '__main__':
     queue = ThreadSafeQueue(10)
+
+
     def producer():
         while True:
             queue.put(1)
             time.sleep(3)
 
+
     def consumer():
         while True:
             item = queue.pop(block=True, timeout=2)
-            print("get item from queue:%d",item)
+            print("get item from queue:%d", item)
             time.sleep(3)
+
+
     thread1 = threading.Thread(target=producer)
     thread2 = threading.Thread(target=consumer)
     thread1.start()
